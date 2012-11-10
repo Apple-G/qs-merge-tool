@@ -2,18 +2,19 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class FileHandler {
 
 	private int index;
 	private String filePath;
-	private HashMap<Integer, String> fileMap;
+	private ArrayList<String> fileList;
 
 	public FileHandler(String file) {
-		index = 0;
+		index = 1;
 		filePath = file;
-		fileMap = new HashMap<Integer, String>();
+		fileList = new ArrayList<String>();
 	}
 
 	public boolean readFile() {
@@ -28,7 +29,7 @@ public class FileHandler {
 			String strLine;
 			// Read File Line By Line
 			while ((strLine = br.readLine()) != null) {
-				fileMap.put(row, strLine);
+				fileList.add(strLine);
 				row++;
 
 			}
@@ -40,15 +41,19 @@ public class FileHandler {
 		return true;
 	}
 
-	public String GetRow(int row) {
-		if (fileMap.containsKey(row)) {
-			return fileMap.get(row);
+	public ArrayList<String> getList() {
+		return fileList;
+	}
+
+	public String getRow(int row) {
+		if (fileList.size() > row) {
+			return fileList.get(row);
 		}
 
 		return null;
 	}
 
-	public String GetNextRow() {
-		return GetRow(index++);
+	public String getNextRow() {
+		return getRow(index++);
 	}
 }
