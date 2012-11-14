@@ -1,11 +1,10 @@
 ﻿int foo(){
 return1;
 }
-
 int foobar(){
 return 3;
 }
 
 int bar(){
-return 2;
+return 3;
 }
