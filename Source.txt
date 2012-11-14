@@ -1,7 +1,15 @@
 ﻿int foo(){
 return1;
 }
+<<<<<<< .mine
 
+int foobar(){
+return 3;
+}
+
+=======
+
+>>>>>>> .r13
 int bar(){
 return 2;
 }
