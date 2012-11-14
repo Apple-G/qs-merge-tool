@@ -1,7 +1,6 @@
 ﻿int foo(){
 return1;
 }
-
 int bar(){
-return 2;
+return 3;
 }
