@@ -1,4 +1,6 @@
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class Merge {
 
@@ -40,6 +42,12 @@ public class Merge {
 
 		while (rowLGT != null || rowFileOrg != null || rowFile1 != null || rowFile2 != null) {
 
+			System.out.println(" ### Start ### ");
+			System.out.println("rowLGT > " + rowLGT);
+			System.out.println("rowFile1 > " + rowFile1);
+			System.out.println("rowFile2 > " + rowFile2);
+			System.out.println("rowFileOrg > " + rowFileOrg);
+
 			// Fall 1
 			// LGT ist nicht Null
 			// => LGT
@@ -52,18 +60,19 @@ public class Merge {
 					// Fall 1.1.1
 					// Alle Gleich
 					if (rowLGT.equals(rowFile1) && rowLGT.equals(rowFile2)) {
+						System.out.println("Fall 1.1.1 -> Alle Gleich");
 						mergeOutput.add(rowLGT);
 
 						rowLGT = lgt.getNextLGT();
 						rowFile1 = file1.getNextRow();
 						rowFile2 = file2.getNextRow();
 						rowFileOrg = fileOrg.getNextRow();
-
 					}
 
 					// Fall 1.1.2 Datei 1 unterschiedlich zu LGT
 					// => Datei 1
 					else if (!rowLGT.equals(rowFile1) && rowLGT.equals(rowFile2)) {
+						System.out.println("Fall 1.1.2 Datei 1 unterschiedlich zu LGT");
 						mergeOutput.add(rowFile1);
 						rowFile1 = file1.getNextRow();
 					}
@@ -71,6 +80,7 @@ public class Merge {
 					// Fall 1.1.3 Datei 2 unterschiedlich zu LGT
 					// => Datei 2
 					else if (rowLGT.equals(rowFile1) && !rowLGT.equals(rowFile2)) {
+						System.out.println("Fall 1.1.3 Datei 2 unterschiedlich zu LGT");
 						mergeOutput.add(rowFile2);
 						rowFile2 = file2.getNextRow();
 					}
@@ -80,25 +90,30 @@ public class Merge {
 					else {
 						// Fall 1.1.4.1 ein der beiden Dateien Null
 						if (rowFile1 == null || rowFile2 == null) {
-							// Datei 2 ist NULL aenderungen von Datei 1 werden
-							// uebernommen
+							// Datei 2 ist NULL aenderungen von Datei 1 werden uebernommen
 							if (rowFile1 != null) {
+								System.out.println("Fall 1.1.4.1 ein der beiden Dateien Null (Datei 2 ist NULL)");
 								mergeOutput.add(rowFile1);
 								rowFile1 = file1.getNextRow();
 							}
-							// Datei 1 ist NULL aenderungen von Datei 2 werden
-							// uebernommen
+							// Datei 1 ist NULL aenderungen von Datei 2 werden uebernommen
 							else if (rowFile2 != null) {
+								System.out.println("Fall 1.1.4.1 ein der beiden Dateien Null (Datei 1 ist NULL)");
 								mergeOutput.add(rowFile2);
 								rowFile2 = file2.getNextRow();
 							}
 						}
+						// ## Beide Null kann micht vorkommen, da LGT
+
 						// Fall 1.1.4.2
 						// beide nicht null -> aenderung in beiden dateien
 						else {
 							if (rowFile1.equals(rowFile2)) { // gleiche aenderung in beiden dateien, uebernehmen
+								System.out.println("Fall 1.1.4.2 gleiche aenderung in beiden dateien");
 								mergeOutput.add(rowFile1);
 							} else {// Konflikt, aenderungen sind nicht gleich
+								System.out.println("Fall 1.1.4.2 Konflikt, aenderungen sind nicht gleich");
+
 								System.out.println("Konflikt , 1.1.4.2");
 								mergeOutput.add("##Konflikt##");
 								mergeOutput.add("##Datei1: " + rowFile1);
@@ -106,31 +121,80 @@ public class Merge {
 							}
 							rowFile1 = file1.getNextRow();
 							rowFile2 = file2.getNextRow();
-
 						}
 					}
 
 				} else {// Fall 1.2
-					// LGT und orig sind unterschiedlich -> es wurde was gelöscht oder geändert
+					// LGT und orig sind unterschiedlich -> es wurde was gelöscht, eingefügt oder geändert
+
 					if (rowFileOrg != null) {
-						if (rowFileOrg.equals(rowFile1)) {//änderungen an Datei 2. änderungen übernehmen
-							mergeOutput.add(rowFileOrg);
+
+						// Fall 1.2.1 einseitige aendernungen in Datei 2
+						if (rowFileOrg.equals(rowFile1)) {// änderungen an Datei 2. änderungen übernehmen oder Fehler wenn Datei 2 = LGT
+
+							if (rowLGT.equals(rowFile2)) {
+
+								System.out.println("Fall 1.2.1.1 LGT und orig sind unterschiedlich, org und File 1 gleich, aber File 2 = LGT....");
+								mergeOutput.add("##TODO - kp was machen vorraussichtlich Konflikt");
+								rowFile1 = file1.getNextRow();
+								rowFileOrg = fileOrg.getNextRow();
+
+							} else {
+
+								System.out.println("Fall 1.2.1.1 LGT und orig sind unterschiedlich, org und File 1 gleich, änderungen an Datei 2");
+								mergeOutput.add(rowFile2);
+								rowFile1 = file1.getNextRow();
+								rowFile2 = file2.getNextRow();
+								rowFileOrg = fileOrg.getNextRow();
+
+							}
+
+							// Fall 1.2.2 einseitige aendernungen in Datei 1
+						} else if (rowFileOrg.equals(rowFile2)) {// änderungen an datei 1. änderungen übernehmen oder Fehler wenn Datei 1 = LGT
+							if (rowLGT.equals(rowFile1)) {
+
+								System.out.println("Fall 1.2.1 LGT und orig sind unterschiedlich, org und File2 gleich, aber File 1 = LGT....");
+								mergeOutput.add("##TODO - kp was machen vorraussichtlich Konflikt");
+								rowFile2 = file2.getNextRow();
+								rowFileOrg = fileOrg.getNextRow();
+
+							} else {
+
+								System.out.println("Fall 1.2.1 LGT und orig sind unterschiedlich, org und File 2 gleich, änderungen an Datei 1");
+								mergeOutput.add(rowFile1);
+								rowFile1 = file1.getNextRow();
+								rowFile2 = file2.getNextRow();
+								rowFileOrg = fileOrg.getNextRow();
+
+							}
+
+							// //Fall 1.2.3 gleiche aenderung in Datei 1 & 2 => überschreiben der OrginalDatei
+						} else if (rowFile1.equals(rowFile2)) {
+							System.out.println("Fall 1.2.3 LGT und orig sind unterschiedlich, gleiche aenderung in Datei 1 & 2 => überschreiben der OrginalDatei");
+							mergeOutput.add(rowFile1);
 							rowFile1 = file1.getNextRow();
-						} else if (rowFileOrg.equals(rowFile2)) {//änderungen an datei 1.  änderungen übernehmen
-							mergeOutput.add(rowFileOrg);
 							rowFile2 = file2.getNextRow();
+							rowFileOrg = fileOrg.getNextRow();
+
+							// Fall 1.2.4 unterschiedliche änderungen in Datei 1 & 2 => Fehler
+						} else {
+							// Konflikt
+							System.out.println("Fall 1.2.4 LGT und orig sind unterschiedlich, änderungen an beiden Dateien.");
+
+							System.out.println("Konflikt , 1.2.4");
+							mergeOutput.add("##Konflikt bei löschen##");
+							mergeOutput.add("##Datei1: " + rowFile1);
+							mergeOutput.add("##Datei2: " + rowFile2);
+
+							rowFile1 = file1.getNextRow();
+							rowFile2 = file2.getNextRow();
+
+							rowFileOrg = fileOrg.getNextRow();
 						}
-//						 else {//änderungen an beiden dateien.
-//							// Konflikt
-//							System.out.println("Konflikt , 1.2");
-//							mergeOutput.add("##Konflikt bei löschen##");
-//							mergeOutput.add("##Datei1: " + rowFile1);
-//							mergeOutput.add("##Datei2: " + rowFile2);
-//						}
-					}// Else nicht nötig, da übersprungen wird
-					rowFileOrg = fileOrg.getNextRow();
+					}
 
 				}
+				// ### ORG = Null && LGT != Null => nicht möglich!
 			} else {// Fall 2
 				// LGT==null
 				// Fall 2.1 ende der übereinstimmung, einer datei wurde was hinzugefügt
@@ -138,15 +202,18 @@ public class Merge {
 					// Datei 2 ist NULL aenderungen von Datei 1 werden
 					// uebernommen
 					if (rowFile1 != null) {
+						System.out.println("Fall 2.1 ende der übereinstimmung, einer datei wurde was hinzugefügt, änderungen von Datei 1.");
 						mergeOutput.add(rowFile1);
 						rowFile1 = file1.getNextRow();
 					}
 					// Datei 1 ist NULL aenderungen von Datei 2 werden
 					// uebernommen
 					else if (rowFile2 != null) {
+						System.out.println("Fall 2.1 ende der übereinstimmung, einer datei wurde was hinzugefügt, änderungen von Datei 2.");
 						mergeOutput.add(rowFile2);
 						rowFile2 = file2.getNextRow();
 					} else {
+						System.out.println("Fall 2.1 EOF");
 						rowFileOrg = null;// in beiden dateien wurde alles nachfolgende gelöscht, deswegen EOF
 
 					}
@@ -155,9 +222,11 @@ public class Merge {
 				// beide nicht null -> aenderung in beiden dateien
 				else {
 					if (rowFile1.equals(rowFile2)) { // gleiche aenderung in beiden dateien, uebernehmen
+						System.out.println("Fall 2.2 gleiche aenderung in beiden dateien, uebernehmen.");
 						mergeOutput.add(rowFile1);
 					} else {// Konflikt, aenderungen sind nicht gleich
-						System.out.println("Konflikt , 1.1.4.2");
+						System.out.println("Fall 2.2 gleiche aenderung in beiden dateien nicht gleich, Konflikt.");
+						System.out.println("Konflikt , 2.2");
 						mergeOutput.add("##Konflikt##");
 						mergeOutput.add("##Datei1: " + rowFile1);
 						mergeOutput.add("##Datei2: " + rowFile2);
@@ -168,6 +237,8 @@ public class Merge {
 				}
 
 			}
+			System.out.println("Last MergeOutput > " + mergeOutput.get(mergeOutput.size() - 1));
+			System.out.println(" ### Ende ### ");
 		}// end while
 
 		return mergeOutput;
@@ -178,11 +249,30 @@ public class Merge {
 	 */
 	public static void main(String[] args) {
 		Merge merg = new Merge();
-		
-		if (merg.LoadFiles("D:\\Daten\\Tobias\\workspace\\hska.qs.MergeTool\\files\\fileOrg.txt", "D:\\Daten\\Tobias\\workspace\\hska.qs.MergeTool\\files\\file1.txt", "D:\\Daten\\Tobias\\workspace\\hska.qs.MergeTool\\files\\file2.txt")) {
+
+		String path = "C:\\Temp\\";
+
+		System.out.println();
+		if (merg.LoadFiles(path + "Source.txt", path + "file1.txt", path + "file2.txt")) {
+
+			//Mege
+			System.out.println("Start Mergeing");
 			ArrayList<String> list = merg.startMerge();
-			System.out.println(list);
+			
+			//Generate outPath
+			SimpleDateFormat sdf = new SimpleDateFormat("HH_mm_ss");
+			String uhrzeit = sdf.format(new Date());			
+			String outPath = path + "Output_" + uhrzeit + ".txt";
+			
+			//Write to File
+			System.out.println("Write to File: " +outPath);			
+			if (!FileHandler.writeToFile(outPath, list)) {
+				System.out.println("Error beim AusgabeDatei schreiben.");
+				System.out.println(list);
+			}
 		}
+		
+		System.out.println("End of Prog!");
 
 	}
 }
