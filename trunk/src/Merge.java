@@ -116,6 +116,7 @@ public class Merge {
 
 								System.out.println("Konflikt , 1.1.4.2");
 								mergeOutput.add("##Konflikt##");
+								mergeOutput.add("##Original: ");
 								mergeOutput.add("##Datei1: " + rowFile1);
 								mergeOutput.add("##Datei2: " + rowFile2);
 							}
@@ -170,11 +171,18 @@ public class Merge {
 
 							// //Fall 1.2.3 gleiche aenderung in Datei 1 & 2 => überschreiben der OrginalDatei
 						} else if (rowFile1.equals(rowFile2)) {
-							System.out.println("Fall 1.2.3 LGT und orig sind unterschiedlich, gleiche aenderung in Datei 1 & 2 => überschreiben der OrginalDatei");
-							mergeOutput.add(rowFile1);
-							rowFile1 = file1.getNextRow();
-							rowFile2 = file2.getNextRow();
-							rowFileOrg = fileOrg.getNextRow();
+
+							// Fall 1.2.3.1 LGT und orig sind unterschiedlich, Datei 1 & 2 sind gleich LGT => Orginal eien Zeile weiter
+							if (rowFile1.equals(rowLGT)) {
+								System.out.println("Fall 1.2.3.1 LGT und orig sind unterschiedlich, Datei 1 & 2 sind gleich LGT => Orginal eien Zeile weiter");
+								rowFileOrg = fileOrg.getNextRow();
+							} else {
+								System.out.println("Fall 1.2.3.2 LGT und orig sind unterschiedlich, gleiche aenderung in Datei 1 & 2 => überschreiben der OrginalDatei");
+								mergeOutput.add(rowFile1);
+								rowFile1 = file1.getNextRow();
+								rowFile2 = file2.getNextRow();
+								rowFileOrg = fileOrg.getNextRow();
+							}
 
 							// Fall 1.2.4 unterschiedliche änderungen in Datei 1 & 2 => Fehler
 						} else {
@@ -183,13 +191,30 @@ public class Merge {
 
 							System.out.println("Konflikt , 1.2.4");
 							mergeOutput.add("##Konflikt bei löschen##");
-							mergeOutput.add("##Datei1: " + rowFile1);
-							mergeOutput.add("##Datei2: " + rowFile2);
+							
+							if (!rowLGT.equalsIgnoreCase(rowFileOrg)) {
+								mergeOutput.add("##Original: " + rowFileOrg);
+								rowFileOrg = fileOrg.getNextRow();
+							}
+							else{
+								mergeOutput.add("##Original: ");
+							}
+							if (!rowLGT.equalsIgnoreCase(rowFile1)) {
+								mergeOutput.add("##Datei1: " + rowFile1);
+								rowFile1 = file1.getNextRow();	
+							}
+							else{
+								mergeOutput.add("##Datei1: ");
+							}
 
-							rowFile1 = file1.getNextRow();
-							rowFile2 = file2.getNextRow();
-
-							rowFileOrg = fileOrg.getNextRow();
+							if (!rowLGT.equalsIgnoreCase(rowFile2)) {
+								mergeOutput.add("##Datei2: " + rowFile2);
+								rowFile2 = file2.getNextRow();
+							}
+							else{
+								mergeOutput.add("##Datei2: ");
+							}
+							
 						}
 					}
 
@@ -228,6 +253,7 @@ public class Merge {
 						System.out.println("Fall 2.2 gleiche aenderung in beiden dateien nicht gleich, Konflikt.");
 						System.out.println("Konflikt , 2.2");
 						mergeOutput.add("##Konflikt##");
+						mergeOutput.add("##Original: " + rowFileOrg);
 						mergeOutput.add("##Datei1: " + rowFile1);
 						mergeOutput.add("##Datei2: " + rowFile2);
 					}
@@ -237,7 +263,9 @@ public class Merge {
 				}
 
 			}
-			System.out.println("Last MergeOutput > " + mergeOutput.get(mergeOutput.size() - 1));
+			if (mergeOutput.size() - 1 > 0) {
+				System.out.println("Last MergeOutput > " + mergeOutput.get(mergeOutput.size() - 1));
+			}
 			System.out.println(" ### Ende ### ");
 		}// end while
 
@@ -250,28 +278,28 @@ public class Merge {
 	public static void main(String[] args) {
 		Merge merg = new Merge();
 
-		String path = "C:\\Temp\\";
+		String path = "files\\3\\";
 
 		System.out.println();
 		if (merg.LoadFiles(path + "Source.txt", path + "file1.txt", path + "file2.txt")) {
 
-			//Mege
+			// Mege
 			System.out.println("Start Mergeing");
 			ArrayList<String> list = merg.startMerge();
-			
-			//Generate outPath
+
+			// Generate outPath
 			SimpleDateFormat sdf = new SimpleDateFormat("HH_mm_ss");
-			String uhrzeit = sdf.format(new Date());			
+			String uhrzeit = sdf.format(new Date());
 			String outPath = path + "Output_" + uhrzeit + ".txt";
-			
-			//Write to File
-			System.out.println("Write to File: " +outPath);			
+
+			// Write to File
+			System.out.println("Write to File: " + outPath);
 			if (!FileHandler.writeToFile(outPath, list)) {
 				System.out.println("Error beim AusgabeDatei schreiben.");
 				System.out.println(list);
 			}
 		}
-		
+
 		System.out.println("End of Prog!");
 
 	}
