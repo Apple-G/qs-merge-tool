@@ -94,8 +94,4 @@ public class LGT {
 		return getLGTPos(index++);
 	}
 
-	public int getPos() {
-		return index;
-	}
-
 }
