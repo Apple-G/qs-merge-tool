@@ -87,27 +87,29 @@ public class Merge {
 
 					// Fall 1.1.4 Datei 1 & Datei 2 unterschiedlich zu LGT
 					// => Konflikt oder Datei1 und Datei 2 gleich => Datei 1
-					else {
+
+			 		else {
+						//##fall kann nicht sein, da eine datei nicht null sein kann wenn lgt != null
 						// Fall 1.1.4.1 ein der beiden Dateien Null
-						if (rowFile1 == null || rowFile2 == null) {
-							// Datei 2 ist NULL aenderungen von Datei 1 werden uebernommen
-							if (rowFile1 != null) {
-								System.out.println("Fall 1.1.4.1 ein der beiden Dateien Null (Datei 2 ist NULL)");
-								mergeOutput.add(rowFile1);
-								rowFile1 = file1.getNextRow();
-							}
-							// Datei 1 ist NULL aenderungen von Datei 2 werden uebernommen
-							else if (rowFile2 != null) {
-								System.out.println("Fall 1.1.4.1 ein der beiden Dateien Null (Datei 1 ist NULL)");
-								mergeOutput.add(rowFile2);
-								rowFile2 = file2.getNextRow();
-							}
-						}
+//						if (rowFile1 == null || rowFile2 == null) {
+//							// Datei 2 ist NULL aenderungen von Datei 1 werden uebernommen
+//							if (rowFile1 != null) {
+//								System.out.println("Fall 1.1.4.1 ein der beiden Dateien Null (Datei 2 ist NULL)");
+//								mergeOutput.add(rowFile1);
+//								rowFile1 = file1.getNextRow();
+//							}
+//							// Datei 1 ist NULL aenderungen von Datei 2 werden uebernommen
+//							else if (rowFile2 != null) {
+//								System.out.println("Fall 1.1.4.1 ein der beiden Dateien Null (Datei 1 ist NULL)");
+//								mergeOutput.add(rowFile2);
+//								rowFile2 = file2.getNextRow();
+//							}
+//						}
 						// ## Beide Null kann micht vorkommen, da LGT
 
 						// Fall 1.1.4.2
 						// beide nicht null -> aenderung in beiden dateien
-						else {
+					//	else {
 							if (rowFile1.equals(rowFile2)) { // gleiche aenderung in beiden dateien, uebernehmen
 								System.out.println("Fall 1.1.4.2 gleiche aenderung in beiden dateien");
 								mergeOutput.add(rowFile1);
@@ -122,7 +124,7 @@ public class Merge {
 							}
 							rowFile1 = file1.getNextRow();
 							rowFile2 = file2.getNextRow();
-						}
+						//}
 					}
 
 				} else {// Fall 1.2
@@ -275,6 +277,7 @@ public class Merge {
 	/**
 	 * @param args
 	 */
+	/*
 	public static void main(String[] args) {
 		Merge merg = new Merge();
 
@@ -302,5 +305,5 @@ public class Merge {
 
 		System.out.println("End of Prog!");
 
-	}
+	}*/
 }
