@@ -23,9 +23,13 @@ public class Merge {
 
 		if (fileOrg.readFile() && file1.readFile() && file2.readFile()) {
 
-			lgt = new LGT();
-			lgt.generateLGT(fileOrg.getList(), file1.getList(), file2.getList());
-
+			try {
+				lgt = new LGT();
+				lgt.generateLGT(fileOrg.getList(), file1.getList(), file2.getList());
+			} catch (OutOfMemoryError e) {
+				System.out.println("Fehler beim lesen der Datei (Out of Memory)");
+				return false;
+			}
 			return true;
 		} else {
 			System.out.println("Fehler beim lesen der Datei");
@@ -88,43 +92,45 @@ public class Merge {
 					// Fall 1.1.4 Datei 1 & Datei 2 unterschiedlich zu LGT
 					// => Konflikt oder Datei1 und Datei 2 gleich => Datei 1
 
-			 		else {
-						//##fall kann nicht sein, da eine datei nicht null sein kann wenn lgt != null
-						// Fall 1.1.4.1 ein der beiden Dateien Null
-//						if (rowFile1 == null || rowFile2 == null) {
-//							// Datei 2 ist NULL aenderungen von Datei 1 werden uebernommen
-//							if (rowFile1 != null) {
-//								System.out.println("Fall 1.1.4.1 ein der beiden Dateien Null (Datei 2 ist NULL)");
-//								mergeOutput.add(rowFile1);
-//								rowFile1 = file1.getNextRow();
-//							}
-//							// Datei 1 ist NULL aenderungen von Datei 2 werden uebernommen
-//							else if (rowFile2 != null) {
-//								System.out.println("Fall 1.1.4.1 ein der beiden Dateien Null (Datei 1 ist NULL)");
-//								mergeOutput.add(rowFile2);
-//								rowFile2 = file2.getNextRow();
-//							}
-//						}
-						// ## Beide Null kann micht vorkommen, da LGT
+					// else {
+					// ##fall kann nicht sein, da eine datei nicht null sein kann wenn lgt != null
+					// Fall 1.1.4.1 ein der beiden Dateien Null
+					// if (rowFile1 == null || rowFile2 == null) {
+					// // Datei 2 ist NULL aenderungen von Datei 1 werden uebernommen
+					// if (rowFile1 != null) {
+					// System.out.println("Fall 1.1.4.1 ein der beiden Dateien Null (Datei 2 ist NULL)");
+					// mergeOutput.add(rowFile1);
+					// rowFile1 = file1.getNextRow();
+					// }
+					// // Datei 1 ist NULL aenderungen von Datei 2 werden uebernommen
+					// else if (rowFile2 != null) {
+					// System.out.println("Fall 1.1.4.1 ein der beiden Dateien Null (Datei 1 ist NULL)");
+					// mergeOutput.add(rowFile2);
+					// rowFile2 = file2.getNextRow();
+					// }
+					// }
 
-						// Fall 1.1.4.2
-						// beide nicht null -> aenderung in beiden dateien
-					//	else {
-							if (rowFile1.equals(rowFile2)) { // gleiche aenderung in beiden dateien, uebernehmen
-								System.out.println("Fall 1.1.4.2 gleiche aenderung in beiden dateien");
-								mergeOutput.add(rowFile1);
-							} else {// Konflikt, aenderungen sind nicht gleich
-								System.out.println("Fall 1.1.4.2 Konflikt, aenderungen sind nicht gleich");
+					// ## Beide Null kann micht vorkommen, da LGT
 
-								System.out.println("Konflikt , 1.1.4.2");
-								mergeOutput.add("##Konflikt##");
-								mergeOutput.add("##Original: ");
-								mergeOutput.add("##Datei1: " + rowFile1);
-								mergeOutput.add("##Datei2: " + rowFile2);
-							}
-							rowFile1 = file1.getNextRow();
-							rowFile2 = file2.getNextRow();
-						//}
+					// Fall 1.1.4.2
+					// beide nicht null -> aenderung in beiden dateien
+
+					else {
+						if (rowFile1.equals(rowFile2)) { // gleiche aenderung in beiden dateien, uebernehmen
+							System.out.println("Fall 1.1.4.2 gleiche aenderung in beiden dateien");
+							mergeOutput.add(rowFile1);
+						} else {// Konflikt, aenderungen sind nicht gleich
+							System.out.println("Fall 1.1.4.2 Konflikt, aenderungen sind nicht gleich");
+
+							System.out.println("Konflikt , 1.1.4.2");
+							mergeOutput.add("##Konflikt##");
+							mergeOutput.add("##Original: ");
+							mergeOutput.add("##Datei1: " + rowFile1);
+							mergeOutput.add("##Datei2: " + rowFile2);
+						}
+						rowFile1 = file1.getNextRow();
+						rowFile2 = file2.getNextRow();
+						// }
 					}
 
 				} else {// Fall 1.2
@@ -193,30 +199,22 @@ public class Merge {
 
 							System.out.println("Konflikt , 1.2.4");
 							mergeOutput.add("##Konflikt bei löschen##");
-							
-							if (!rowLGT.equalsIgnoreCase(rowFileOrg)) {
-								mergeOutput.add("##Original: " + rowFileOrg);
-								rowFileOrg = fileOrg.getNextRow();
-							}
-							else{
-								mergeOutput.add("##Original: ");
-							}
-							if (!rowLGT.equalsIgnoreCase(rowFile1)) {
+							mergeOutput.add("##Original: " + rowFileOrg);
+							rowFileOrg = fileOrg.getNextRow();
+							if (!rowLGT.equals(rowFile1)) {
 								mergeOutput.add("##Datei1: " + rowFile1);
-								rowFile1 = file1.getNextRow();	
-							}
-							else{
+								rowFile1 = file1.getNextRow();
+							} else {
 								mergeOutput.add("##Datei1: ");
 							}
 
-							if (!rowLGT.equalsIgnoreCase(rowFile2)) {
+							if (!rowLGT.equals(rowFile2)) {
 								mergeOutput.add("##Datei2: " + rowFile2);
 								rowFile2 = file2.getNextRow();
-							}
-							else{
+							} else {
 								mergeOutput.add("##Datei2: ");
 							}
-							
+
 						}
 					}
 
@@ -274,36 +272,21 @@ public class Merge {
 		return mergeOutput;
 	}
 
-	/**
-	 * @param args
-	 */
 	/*
-	public static void main(String[] args) {
-		Merge merg = new Merge();
-
-		String path = "files\\3\\";
-
-		System.out.println();
-		if (merg.LoadFiles(path + "Source.txt", path + "file1.txt", path + "file2.txt")) {
-
-			// Mege
-			System.out.println("Start Mergeing");
-			ArrayList<String> list = merg.startMerge();
-
-			// Generate outPath
-			SimpleDateFormat sdf = new SimpleDateFormat("HH_mm_ss");
-			String uhrzeit = sdf.format(new Date());
-			String outPath = path + "Output_" + uhrzeit + ".txt";
-
-			// Write to File
-			System.out.println("Write to File: " + outPath);
-			if (!FileHandler.writeToFile(outPath, list)) {
-				System.out.println("Error beim AusgabeDatei schreiben.");
-				System.out.println(list);
-			}
-		}
-
-		System.out.println("End of Prog!");
-
-	}*/
+	 * public static void main(String[] args) { Merge merg = new Merge();
+	 * 
+	 * String path = "files\\3\\";
+	 * 
+	 * System.out.println(); if (merg.LoadFiles(path + "Source.txt", path + "file1.txt", path + "file2.txt")) {
+	 * 
+	 * // Mege System.out.println("Start Mergeing"); ArrayList<String> list = merg.startMerge();
+	 * 
+	 * // Generate outPath SimpleDateFormat sdf = new SimpleDateFormat("HH_mm_ss"); String uhrzeit = sdf.format(new Date()); String outPath = path + "Output_" + uhrzeit + ".txt";
+	 * 
+	 * // Write to File System.out.println("Write to File: " + outPath); if (!FileHandler.writeToFile(outPath, list)) { System.out.println("Error beim AusgabeDatei schreiben."); System.out.println(list); } }
+	 * 
+	 * System.out.println("End of Prog!");
+	 * 
+	 * }
+	 */
 }

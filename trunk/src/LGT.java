@@ -15,7 +15,7 @@ public class LGT {
 		lgtList = calculate(temp, file2);
 	}
 
-	public ArrayList<String> calculate(ArrayList<String> links, ArrayList<String> rechts) {
+	public ArrayList<String> calculate(ArrayList<String> links, ArrayList<String> rechts) throws OutOfMemoryError{
 
 		if (links.size() < rechts.size()) {
 			ArrayList<String> tmp = null;
